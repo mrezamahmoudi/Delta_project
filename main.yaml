@@ -1,0 +1,17 @@
+---
+- hosts: k8s cluster
+  gather_facts: yes
+  become: yes
+  roles:
+    - { role: docker, tags: docker }
+
+- hosts: k8s master
+  gather_facts: yes
+  become: yes
+  roles:
+  
+
+- hosts: k8s worker
+  gather_facts: yes
+  become: yes
+  roles:
