@@ -1,0 +1,12 @@
+[k8s cluster]
+
+[k8s master]
+
+[k8s worker]
+
+[prometheus]
+
+[grafana]
+
+
+[gitlab]
