@@ -1,4 +1,5 @@
 ---
+
 - hosts: k8s cluster
   gather_facts: yes
   become: yes
@@ -9,7 +10,8 @@
   gather_facts: yes
   become: yes
   roles:
-  
+    - { role: kubernetes/master, tags: master }
+
 
 - hosts: k8s worker
   gather_facts: yes

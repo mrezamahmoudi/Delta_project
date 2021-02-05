@@ -2,7 +2,7 @@
 
 [k8s master]
 
-[k8s worker]
+[k8s node]
 
 [prometheus]
 
