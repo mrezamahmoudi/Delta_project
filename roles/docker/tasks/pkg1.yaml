@@ -1,0 +1,57 @@
+---
+  - name: Install packages that allow apt to be used over HTTPS
+    when: ansible_os_family == "Debian"
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+
+  - name: Add an apt signing key for Docker
+    when: ansible_os_family == "Debian" 
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add apt repository for stable version
+    when: ansible_os_family == "Debian"  
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+      state: present
+
+  - name: Install docker and its dependecies
+    when: ansible_os_family == "Debian"  
+    apt: 
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - docker-ce 
+      - docker-ce-cli 
+      - containerd.io
+    notify:
+      - docker status
+
+  - name: Add Docker yum repository
+    when: ansible_os_family == "RedHat"
+    yum_repository:
+      name: Docker
+      description: Docker Repository
+      file: docker
+      baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+      enabled: yes
+      gpgcheck: yes
+      gpgkey: https://download.docker.com/linux/centos/gpg
+
+  - name: Install docker engine (RHEL/CentOS)
+    when: ansible_os_family == "RedHat"
+    yum:
+      name: "docker-ce-selinux-{{ docker_version }}.*"
+      state: present
