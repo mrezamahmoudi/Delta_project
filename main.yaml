@@ -1,19 +1,26 @@
 ---
 
+#K8s installation
 - hosts: k8s cluster
   gather_facts: yes
   become: yes
   roles:
     - { role: docker, tags: docker }
+    - { role: k8s Initial preparation, tags: prepare}
 
 - hosts: k8s master
   gather_facts: yes
   become: yes
   roles:
-    - { role: kubernetes/master, tags: master }
+    - { role: k8s master, tags: master }
 
 
-- hosts: k8s worker
+- hosts: k8s node
   gather_facts: yes
   become: yes
   roles:
+    - { role: k8s node, tags: node}
+
+
+ #Monitoring
+ #gitlab 
