@@ -1,21 +1,21 @@
 ---
 
 #K8s installation
-- hosts: k8s cluster
+- hosts: k8sـcluster
   gather_facts: yes
   become: yes
   roles:
     - { role: docker, tags: docker }
     - { role: k8s Initial preparation, tags: prepare}
 
-- hosts: k8s master
+- hosts: k8sـmaster
   gather_facts: yes
   become: yes
   roles:
     - { role: k8s master, tags: master }
 
 
-- hosts: k8s node
+- hosts: k8sـnode
   gather_facts: yes
   become: yes
   roles:
