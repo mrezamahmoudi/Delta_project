@@ -48,5 +48,9 @@
       name: kubelet
       daemon_reload: yes
       state: restarted
-
-#
+  
+  - name: Enable service kubelet and ensure it is not masked
+    ansible.builtin.systemd:
+      name: kubelet
+      enabled: yes
+      masked: no
