@@ -1,4 +1,17 @@
 ---
-- name: Install Docker container engine
-  include_tasks: pkg1.yaml
+- name: Change DNS to Shecan
+  lineinfile:
+    path: /etc/resolv.conf
+    insertbefore: '^nameserver'
+    state: present
+    line: nameserver 185.51.200.2
 
+- name: Install Docker container engine
+  include_tasks: install.yaml
+
+- name: Start and enable docker service
+  systemd:
+    name: docker.service
+    state: started
+    enabled: yes
+    masked: no

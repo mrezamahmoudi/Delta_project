@@ -1,37 +1,32 @@
 ---
+- name: Check if kubeadm has already run
+  stat:
+    path: "/etc/kubernetes/pki/ca.key"
+  register: kubeadm_ca
 
-  - name: Check if kubeadm has already run
-    stat:
-      path: "/etc/kubernetes/pki/ca.key"
-    register: kubeadm_ca
+- name: Initialize the Kubernetes cluster using kubeadm
+  shell: kubeadm init --apiserver-advertise-address=192.168.56.10 --pod-network-cidr=192.168.0.0/16
+  when: not kubeadm_ca.stat.exists
+  run_once: yes
 
-#Initialize the Kubernetes cluster with kubeadm
-  - name: Initialize the Kubernetes cluster using kubeadm
-    shell: kubeadm init --apiserver-advertise-address=192.168.56.10 --pod-network-cidr=192.168.0.0/16
-    when: not kubeadm_ca.stat.exists
-    run_once: yes
+- name: Setup kubeconfig for user
+  command: "{{ item }}"
+  with_items:
+    - mkdir -p ~/.kube
+    - cp /etc/kubernetes/admin.conf ~/.kube/config
+  when: not kubeadm_ca.stat.exists
+  run_once: yes
 
-#Setup the kube config file
-  - name: Setup kubeconfig for user
-    command: "{{ item }}"
-    with_items:
-     - mkdir -p ~/.kube
-     - cp /etc/kubernetes/admin.conf ~/.kube/config
-    when: not kubeadm_ca.stat.exists
-    run_once: yes
+- name: Install calico pod network
+  command: kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml
 
-#Setup the container networking provider and the network policy engine
-  - name: Install calico pod network
-    command: kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml
+- name: Generate join command
+  command: kubeadm token create --print-join-command
+  register: join_command
 
-#Generate kube join command for joining the node to the Kubernetes cluster and store the command in the file named join-command
-  - name: Generate join command
-    command: kubeadm token create --print-join-command
-    register: join_command
-
-  - name: Copy join command to local file
-    become: false
-    local_action:
-      module: copy
-      content: "{{ join_command.stdout_lines[0] }}"
-      dest: "/tmp/join-command"
+- name: Copy join command to local file
+  become: false
+  local_action:
+    module: copy
+    content: "{{ join_command.stdout_lines[0] }}"
+    dest: "/tmp/join-command"
