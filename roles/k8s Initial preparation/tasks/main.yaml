@@ -15,40 +15,67 @@
 #Installing kubelet, kubeadm and kubectl
 
   - name: Add an apt signing key for Kubernetes
+    when: ansible_os_family == "Debian"
     apt_key:
       url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
       state: present
     tags:
-    - signkey  
+    - signkey
 
   - name: Adding apt repository for Kubernetes
+    when: ansible_os_family == "Debian"
     apt_repository:
       repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
       state: present
       filename: kubernetes.list
 
-  - name: Install Kubernetes binaries
-    apt: 
+  - name: Install Kubernetes binaries (Debian)
+    when: ansible_os_family == "Debian"
+    apt:
       name: "{{ packages }}"
       state: present
       update_cache: yes
     vars:
       packages:
-        - kubelet 
-        - kubeadm 
+        - kubelet
+        - kubeadm
         - kubectl
+
+  - name: Add Kubernetes yum repository
+    when: ansible_os_family == "RedHat"
+    yum_repository:
+      name: Kubernetes
+      description: Kubernetes Repository
+      file: kubernetes
+      baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
+      enabled: yes
+      gpgcheck: yes
+      repo_gpgcheck: yes
+      gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+  - name: Install Kubernetes binaries (RHEL/RedHat)
+    when: ansible_os_family == "RedHat"
+    yum:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - kubeadm
+      - kubelet
+      - kubectl
 
   # - name: Configure node ip
   #   lineinfile:
   #     path: /etc/default/kubelet
   #     line: KUBELET_EXTRA_ARGS=--node-ip={{ node_ip }}
 
-  - name: Restart kubelet
-    service:
-      name: kubelet
-      daemon_reload: yes
-      state: restarted
-  
+  # - name: Restart kubelet
+  #   service:
+  #     name: kubelet
+  #     daemon_reload: yes
+  #     state: restarted
+
   - name: Enable service kubelet and ensure it is not masked
     ansible.builtin.systemd:
       name: kubelet

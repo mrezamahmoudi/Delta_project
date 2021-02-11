@@ -1,18 +1,19 @@
 ---
-  - name: change DNS to Shecan
-    ansible.builtin.lineinfile:
+  - name: Change DNS to Shecan
+    lineinfile:
       path: /etc/resolv.conf
-      regexp: '^nameserver'
+      insertbefore: '^nameserver'
+      state: present
       line: nameserver 185.51.200.2
 
   - name: Update apt-get repo and cache
     when: ansible_os_family == "Debian"
     apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
 
-  - name: upgrade all packages
+  - name: Upgrade all packages
     when: ansible_os_family == "RedHat"
     yum: name=* state=latest
-  
+
   - name: Install packages that allow apt to be used over HTTPS
     when: ansible_os_family == "Debian"
     apt:
@@ -26,40 +27,29 @@
       - curl
       - gnupg-agent
       - software-properties-common
-  
-  # - name: change DNS to Shecan
-  #   command: 'echo "nameserver 185.51.200.2" > /etc/resolv.conf'
-
-  # - name: Add two IPv4 DNS server addresses
-  #   community.general.nmcli:
-  #     conn_name: my-eth1
-  #     type: ethernet
-  #     dns4:
-  #     - 185.51.200.2
-  #     state: present
 
   - name: Add an apt signing key for Docker
-    when: ansible_os_family == "Debian" 
+    when: ansible_os_family == "Debian"
     apt_key:
       url: https://download.docker.com/linux/ubuntu/gpg
       state: present
 
   - name: Add apt repository for stable version
-    when: ansible_os_family == "Debian"  
+    when: ansible_os_family == "Debian"
     apt_repository:
       repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
       state: present
 
   - name: Install docker and its dependecies
-    when: ansible_os_family == "Debian"  
-    apt: 
+    when: ansible_os_family == "Debian"
+    apt:
       name: "{{ packages }}"
       state: present
       update_cache: yes
     vars:
       packages:
-      - docker-ce 
-      - docker-ce-cli 
+      - docker-ce
+      - docker-ce-cli
       - containerd.io
     notify:
       - docker status
@@ -70,7 +60,7 @@
       name: Docker
       description: Docker Repository
       file: docker
-      baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+      baseurl: https://download.docker.com/linux/centos/7/$basearch/stable/
       enabled: yes
       gpgcheck: yes
       gpgkey: https://download.docker.com/linux/centos/gpg
@@ -78,5 +68,12 @@
   - name: Install docker engine (RHEL/CentOS)
     when: ansible_os_family == "RedHat"
     yum:
-      name: "docker-ce-selinux-{{ docker_version }}.*"
+      name: "docker-ce-selinux"
       state: present
+
+  - name: Start and enable docker service
+    systemd:
+      name: docker.service
+      state: started
+      enabled: yes
+      masked: no
