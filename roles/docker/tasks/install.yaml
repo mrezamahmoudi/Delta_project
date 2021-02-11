@@ -2,11 +2,10 @@
 # for debain based hosts
 - name: Update apt-get repo and cache
   when: ansible_os_family == "Debian"
-  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
-
-- name: Upgrade all packages
-  when: ansible_os_family == "RedHat"
-  yum: name=* state=latest
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+    cache_valid_time: 3600
 
 - name: Install packages that allow apt to be used over HTTPS
   when: ansible_os_family == "Debian"
@@ -49,6 +48,12 @@
     - docker status
 
 # for RHEL based hosts
+- name: Upgrade all packages
+  when: ansible_os_family == "RedHat"
+  yum:
+    name: *
+    state: latest
+
 - name: Add Docker yum repository
   when: ansible_os_family == "RedHat"
   yum_repository:
@@ -63,5 +68,5 @@
 - name: Install docker engine (RHEL/CentOS)
   when: ansible_os_family == "RedHat"
   yum:
-    name: "docker-ce-selinux"
+    name: docker-ce-selinux
     state: present
