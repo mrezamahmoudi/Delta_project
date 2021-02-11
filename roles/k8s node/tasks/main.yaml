@@ -1,9 +1,9 @@
 ---
 
-# - name: Check if kubelet.conf exists
-#   stat:
-#     path: "/etc/kubernetes/kubelet.conf"
-#   register: kubelet_conf
+  - name: Check if kubelet.conf exists
+    stat:
+      path: "/etc/kubernetes/kubelet.conf"
+    register: kubelet_conf
 
 # - name: Join to cluster if needed
 #   include_tasks: join.yml
@@ -18,7 +18,17 @@
 
 #Join the nodes to the Kubernetes cluster
   - name: Copy the join command to server location
-    copy: src=join-command dest=/tmp/join-command.sh mode=0777
+    when: not kubelet_conf.stat.exists
+    copy:
+      src: /tmp/join-command
+      dest: /tmp/join-command.sh
+      mode: 0700
 
   - name: Join the node to cluster
+    when: not kubelet_conf.stat.exists
     command: sh /tmp/join-command.sh
+
+  - name: Remove join-command
+    file:
+      path: /tmp/join-command.sh
+      state: absent
