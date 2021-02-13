@@ -51,7 +51,7 @@
 - name: Upgrade all packages
   when: ansible_os_family == "RedHat"
   yum:
-    name: *
+    name: "*"
     state: latest
 
 - name: Add Docker yum repository

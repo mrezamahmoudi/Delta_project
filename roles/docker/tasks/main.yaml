@@ -7,7 +7,7 @@
     line: nameserver 185.51.200.2
 
 - name: Install Docker container engine
-  include_tasks: install.yaml
+  import_tasks: install.yaml
 
 - name: Start and enable docker service
   systemd:
