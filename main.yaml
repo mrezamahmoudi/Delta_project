@@ -20,7 +20,3 @@
   become: yes
   roles:
     - { role: k8s node, tags: node}
-
-
- #Monitoring
- #gitlab 
