@@ -1,3 +1,9 @@
+[all]
+192.168.56.10
+192.168.56.11
+192.168.56.12
+
+
 [k8sـcluster]
 master ansible_host=192.168.56.10
 node1 ansible_host=192.168.56.11
@@ -7,3 +13,6 @@ master ansible_host=192.168.56.10
 
 [k8sـnode]
 node1 ansible_host=192.168.56.11
+
+[gitlab]
+192.168.56.12
