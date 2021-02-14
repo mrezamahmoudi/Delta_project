@@ -1,0 +1,7 @@
+---
+- name: Adding the GitLab CE repository
+  when: ansible_os_family == "RedHat"
+  command: curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
+
+- name: Install GitLab
+  when: ansible_os_family == "RedHat"
