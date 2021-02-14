@@ -1,2 +1,7 @@
 ---
-  - name: 
+- hosts: gitlab
+  gather_facts: yes
+  become: yes
+  roles:
+    - { role: gitlab initial preparation, tags: gitlab_init }
+    - { role: gitlab, tags: gitlab }
