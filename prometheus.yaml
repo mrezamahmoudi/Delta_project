@@ -1,0 +1,8 @@
+---
+- hosts: prometheus
+  gather_facts: yes
+  become: yes
+  roles:
+    - { role: pre installation, tags: pre}
+    - { role: gitlab initial preparation, tags: gitlab_init }
+    - { role: gitlab, tags: gitlab }

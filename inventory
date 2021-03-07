@@ -16,3 +16,6 @@ node1 ansible_host=192.168.56.11
 
 [gitlab]
 192.168.56.12
+
+[prometheus]
+192.168.56.14
